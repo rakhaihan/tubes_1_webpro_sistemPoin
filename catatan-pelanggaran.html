@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Catatan & Laporan - Sistem Poin</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand-compact"><div class="logo">SP</div><h2>SMK Merdeka</h2></div>
+      <nav class="menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="data-murid.html">Data Murid</a>
+        <a href="catatan-pelanggaran.html" class="active">Catatan & Laporan</a>
+        <a href="sanksi-pembinaan.html">Sanksi & Pembinaan</a>
+      </nav>
+      <div class="sidebar-foot">
+        <button id="logoutBtn3" class="btn ghost small">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="header"><button id="sidebarToggle" class="menu-toggle" aria-label="Toggle menu">☰</button><h1>Catatan Pelanggaran</h1><p class="muted">Tambah catatan, lihat riwayat, dan cetak laporan</p></header>
+
+      <section class="card form-section">
+        <h3>Tambah Catatan Pelanggaran</h3>
+        <form id="violationForm">
+          <label class="label">Pilih Murid</label>
+          <select id="violationStudent" class="input" required></select>
+
+          <label class="label">Jenis Pelanggaran</label>
+          <input id="violationType" class="input" placeholder="Contoh: Terlambat / Membolos" required />
+
+          <label class="label">Tanggal</label>
+          <input id="violationDate" type="date" class="input" required />
+
+          <label class="label">Keterangan</label>
+          <textarea id="violationNote" class="input" rows="2"></textarea>
+
+          <label class="label">Poin (angka)</label>
+          <input id="violationPoints" type="number" min="1" class="input" value="1" />
+
+          <div class="row">
+            <button class="btn primary" type="submit">Simpan</button>
+            <button type="button" id="clearViolations" class="btn ghost">Bersihkan Semua</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h3>Riwayat Pelanggaran</h3>
+        <div class="row space-between">
+          <input id="searchViolation" class="input small" placeholder="Cari nama/jenis..." />
+          <div>
+            <button id="printReport" class="btn primary">Cetak Laporan</button>
+          </div>
+        </div>
+
+        <table id="violationsTable">
+          <thead><tr><th>Nama</th><th>Jenis</th><th>Tanggal</th><th>Poin</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h3>Statistik Pelanggaran</h3>
+        <canvas id="chartCanvas2" width="800" height="240"></canvas>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/catatan-pelanggaran.js"></script>
+  <script>
+    app.auth.requireAuth();
+    document.getElementById('logoutBtn3').onclick = () => { app.auth.logout(); location.href='index.html'; };
+
+    const sidebar = document.querySelector('.sidebar');
+    document.getElementById('sidebarToggle').addEventListener('click', () => sidebar.classList.toggle('show'));
+
+    const sel = document.getElementById('violationStudent');
+    const fillStudentOptions = () => {
+      const students = app.data.getAllStudents();
+      sel.innerHTML = '<option value="">-- Pilih Murid --</option>';
+      students.forEach(s => sel.innerHTML += `<option value="${s.id}">${s.name} — ${s.class}</option>`);
+    };
+    fillStudentOptions();
+
+    document.getElementById('violationForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const v = {
+        id: app.util.uuid(),
+        studentId: sel.value,
+        type: document.getElementById('violationType').value.trim(),
+        date: document.getElementById('violationDate').value,
+        note: document.getElementById('violationNote').value.trim(),
+        points: Number(document.getElementById('violationPoints').value) || 1
+      };
+      if (!v.studentId) return alert('Pilih murid terlebih dahulu');
+      app.data.addViolation(v);
+      renderViolations();
+      fillStudentOptions();
+      document.getElementById('violationForm').reset();
+    });
+
+    function renderViolations(filter='') {
+      const tbody = document.querySelector('#violationsTable tbody');
+      const violations = app.data.getAllViolations().filter(v => {
+        const q = filter.toLowerCase();
+        const name = app.data.findStudentName(v.studentId).toLowerCase();
+        return name.includes(q) || v.type.toLowerCase().includes(q) || (v.note||'').toLowerCase().includes(q);
+      });
+      tbody.innerHTML = '';
+      violations.slice().reverse().forEach(v => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${app.data.findStudentName(v.studentId)}</td><td>${v.type}</td><td>${v.date}</td><td>${v.points}</td>
+          <td>${v.note||''}</td>
+          <td>
+            <button class="btn ghost small" onclick="editViolation('${v.id}')">Edit</button>
+            <button class="btn danger small" onclick="deleteViolation('${v.id}')">Hapus</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+
+      const counts = {};
+      app.data.getAllViolations().forEach(x => counts[x.type] = (counts[x.type]||0)+1);
+      drawBarChart('chartCanvas2', Object.keys(counts), Object.values(counts));
+    }
+    document.getElementById('searchViolation').addEventListener('input', (e)=> renderViolations(e.target.value));
+
+    window.editViolation = (id) => {
+      const v = app.data.getViolation(id);
+      if (!v) return;
+      if (!confirm('Edit lewat form? Pilih OK untuk memuat data di form, lalu tekan Simpan (akan membuat entri baru).')) return;
+      document.getElementById('violationStudent').value = v.studentId;
+      document.getElementById('violationType').value = v.type;
+      document.getElementById('violationDate').value = v.date;
+      document.getElementById('violationNote').value = v.note;
+      document.getElementById('violationPoints').value = v.points;
+      app.data.deleteViolation(id);
+      renderViolations();
+    };
+
+    window.deleteViolation = (id) => {
+      if (confirm('Hapus catatan pelanggaran ini?')) {
+        app.data.deleteViolation(id);
+        renderViolations();
+      }
+    };
+
+    document.getElementById('clearViolations').addEventListener('click', () => {
+      if (confirm('Hapus semua catatan pelanggaran?')) { app.data.clearViolations(); renderViolations(); }
+    });
+
+    document.getElementById('printReport').addEventListener('click', () => window.print());
+
+    renderViolations();
+  </script>
+</body>
+</html>
