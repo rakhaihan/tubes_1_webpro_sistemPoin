@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard - Sistem Poin</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div id="appContainer" class="app">
+    <aside class="sidebar">
+      <div class="brand-compact">
+        <div class="logo">SP</div>
+        <h2>SMK Merdeka</h2>
+      </div>
+      <nav class="menu">
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="data-murid.html">Data Murid</a>
+        <a href="catatan-pelanggaran.html">Catatan & Laporan</a>
+        <a href="sanksi-pembinaan.html">Sanksi & Pembinaan</a>
+      </nav>
+      <div class="sidebar-foot">
+        <button id="logoutBtn" class="btn">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="header">
+        <button id="sidebarToggle" class="menu-toggle">☰</button>
+        <h1>Dashboard</h1>
+        <p class="muted">Ringkasan singkat pelanggaran dan status pembinaan</p>
+      </header>
+
+      <section class="grid grid-3">
+        <div class="card stat">
+          <h3>Total Pelanggaran</h3>
+          <p id="statTotal" class="big">0</p>
+        </div>
+        <div class="card stat">
+          <h3>Siswa Dengan Poin ≥ Batas</h3>
+          <p id="statAlert" class="big">0</p>
+        </div>
+        <div class="card stat">
+          <h3>Siswa Dalam Pembinaan</h3>
+          <p id="statPembinaan" class="big">0</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Tren Pelanggaran (per Jenis)</h3>
+        <canvas id="chartCanvas" width="800" height="240"></canvas>
+      </section>
+
+      <section class="card">
+        <h3>Terakhir Ditambahkan</h3>
+        <table id="recentTable">
+          <thead><tr><th>Nama</th><th>Jenis</th><th>Tanggal</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <!-- Tambahkan Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../js/core.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>
