@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Data Murid - Sistem Poin</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand-compact"><div class="logo">SP</div><h2>SMK Merdeka</h2></div>
+      <nav class="menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="data-murid.html" class="active">Data Murid</a>
+        <a href="catatan-pelanggaran.html">Catatan & Laporan</a>
+        <a href="sanksi-pembinaan.html">Sanksi & Pembinaan</a>
+      </nav>
+      <div class="sidebar-foot">
+        <button id="logoutBtn2" class="btn">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="header">
+        <button id="sidebarToggle" class="menu-toggle">☰</button>
+        <h1>Data Murid</h1>
+        <p class="muted">Tambah, edit, atau hapus data murid</p>
+      </header>
+
+      <section class="card">
+        <div class="row space-between">
+          <div>
+            <button id="addStudentBtn" class="btn primary">Tambah Murid</button>
+            <button id="exportStudents" class="btn ghost">Ekspor CSV</button>
+          </div>
+          <input id="searchStudent" class="input small" placeholder="Cari nama atau NIS..." />
+        </div>
+
+        <table id="studentsTable">
+          <thead><tr><th>Nama</th><th>Kelas</th><th>NIS</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <h3 id="modalTitle">Tambah Murid</h3>
+      <form id="studentForm">
+        <input id="studentId" type="hidden" />
+        <label class="label">Nama</label>
+        <input id="studentName" class="input" required />
+        <label class="label">Kelas</label>
+        <input id="studentClass" class="input" required />
+        <label class="label">NIS</label>
+        <input id="studentNIS" class="input" required />
+        <label class="label">Status</label>
+        <select id="studentStatus" class="input">
+          <option value="aktif">Aktif</option>
+          <option value="pembinaan">Pembinaan</option>
+        </select>
+        <div class="row">
+          <button type="submit" class="btn primary">Simpan</button>
+          <button type="button" id="cancelModal" class="btn ghost">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/core.js"></script>
+  <script src="../js/data-murid.js"></script>
+</body>
+</html>
