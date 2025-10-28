@@ -15,23 +15,23 @@
 * {
   box-sizing: border-box;
 }
+
 html,
 body {
   height: 100%;
 }
+
 body {
-  font-family: Inter, "Segoe UI", Roboto, system-ui, -apple-system;
+  font-family: Inter, 'Segoe UI', Roboto, system-ui, -apple-system;
   margin: 0;
-  background: radial-gradient(
-      1200px 400px at 10% 10%,
-      rgba(11, 102, 195, 0.06),
-      transparent
-    ),
+  background: radial-gradient(1200px 400px at 10% 10%, rgba(11, 102, 195, 0.06), transparent),
     var(--bg);
   color: #0f1724;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* --- Sidebar Layout Fixed + Scrollable Main --- */
 .app {
   display: flex;
   min-height: 100vh;
@@ -45,11 +45,7 @@ body {
   left: 0;
   width: 250px;
   height: 100vh;
-  background: linear-gradient(
-    180deg,
-    rgba(11, 102, 195, 0.98),
-    rgba(18, 124, 224, 0.95)
-  );
+  background: linear-gradient(180deg, rgba(11, 102, 195, 0.98), rgba(18, 124, 224, 0.95));
   color: white;
   display: flex;
   flex-direction: column;
@@ -86,6 +82,7 @@ body {
   margin: 0;
 }
 
+/* Sidebar menu */
 .menu {
   display: flex;
   flex-direction: column;
@@ -229,18 +226,15 @@ th {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(
-    180deg,
-    rgba(11, 102, 195, 1),
-    rgba(20, 115, 230, 0.9)
-  );
+  background: linear-gradient(180deg, rgba(11, 102, 195, 1), rgba(20, 115, 230, 0.9));
 }
-
 .login-card {
   width: 360px;
   padding: 28px;
   text-align: center;
   border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--shadow);
 }
 .brand {
   margin-bottom: 8px;
@@ -283,7 +277,7 @@ th {
   box-shadow: var(--shadow);
 }
 
-/* responsiveness */
+/* Responsiveness */
 @media (max-width: 900px) {
   .sidebar {
     transform: translateX(-100%);
@@ -304,7 +298,7 @@ th {
   }
 }
 
-/* small helpers */
+/* Small helpers */
 .menu-toggle {
   background: transparent;
   border: none;
@@ -319,8 +313,8 @@ th {
 
 /* Tombol Logout di sidebar */
 .sidebar-foot .btn {
-  background: #ffffff;
-  color: var(--blue-600);
+  background: #ffffff;        /* background putih */
+  color: var(--blue-600);     /* teks biru */
   border: none;
   width: 100%;
   text-align: center;

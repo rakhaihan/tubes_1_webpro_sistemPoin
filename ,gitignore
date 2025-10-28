@@ -1,0 +1,17 @@
+# Folder build/output
+dist/
+build/
+
+# File editor dan sistem
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Log dan cache
+*.log
+*.cache
+
+# File backup dan arsip
+*.zip
+*.tar.gz
+*.bak
