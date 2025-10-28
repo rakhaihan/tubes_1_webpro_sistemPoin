@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sanksi & Pembinaan - Sistem Poin</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand-compact"><div class="logo">SP</div><h2>SMK Merdeka</h2></div>
+      <nav class="menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="data-murid.html">Data Murid</a>
+        <a href="catatan-pelanggaran.html">Catatan & Laporan</a>
+        <a href="sanksi-pembinaan.html" class="active">Sanksi & Pembinaan</a>
+      </nav>
+      <div class="sidebar-foot">
+        <button id="logoutBtn4" class="btn">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="header"><button id="sidebarToggle" class="menu-toggle">☰</button><h1>Sanksi & Pembinaan</h1></header>
+
+      <section class="card">
+        <form id="sanctionForm">
+          <label class="label">Pilih Murid</label>
+          <select id="sanctionStudent" class="input"></select>
+
+          <label class="label">Jenis Sanksi</label>
+          <input id="sanctionType" class="input" />
+
+          <label class="label">Tanggal</label>
+          <input id="sanctionDate" type="date" class="input" />
+
+          <label class="label">Status Pembinaan</label>
+          <select id="sanctionStatus" class="input">
+            <option value="aktif">Aktif</option>
+            <option value="pembinaan">Pembinaan</option>
+            <option value="selesai">Selesai</option>
+          </select>
+
+          <div class="row">
+            <button class="btn primary" type="submit">Simpan</button>
+            <button type="button" id="clearSanctions" class="btn ghost">Bersihkan</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h3>Daftar Pembinaan</h3>
+        <table id="sanctionsTable">
+          <thead><tr><th>Nama</th><th>Sanksi</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/core.js"></script>
+  <script src="../js/sanksi-pembinaan.js"></script>
+</body>
+</html>
