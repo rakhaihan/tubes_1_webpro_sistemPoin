@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - Sistem Poin Pelanggaran</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="login-page">
+  <main class="card login-card">
+    <div class="brand">
+      <div class="logo">SP</div>
+      <h1>Sistem Poin Pelanggaran</h1>
+      <p class="muted">Login</p>
+    </div>
+
+    <form id="loginForm" class="form">
+      <label class="label">Username</label>
+      <input id="username" class="input" placeholder="Masukkan Username" required />
+      <label class="label">Password</label>
+      <input id="password" type="password" class="input" placeholder="Masukkan Password" required />
+      <div class="row space-between">
+        <button type="submit" class="btn primary">Login</button>
+        <button type="reset" class="btn ghost">Reset</button>
+      </div>
+      <p id="loginError" class="error" aria-live="polite"></p>
+    </form>
+
+    <p class="foot muted">Catatan Pelanggaran SMK Merdeka.</p>
+  </main>
+
+  <script src="../js/core.js"></script>
+  <script src="../js/index.js"></script>
+</body>
+</html>
