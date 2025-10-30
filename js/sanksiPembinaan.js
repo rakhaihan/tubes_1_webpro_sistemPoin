@@ -1,84 +1,69 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const studentSelect = document.getElementById('sanctionStudent');
-    const sanctionForm = document.getElementById('sanctionForm');
-    const sanctionsTable = document.querySelector('#sanctionsTable tbody');
-    const clearBtn = document.getElementById('clearSanctions');
-    const logoutBtn = document.getElementById('logoutBtn4');
-    const toggleBtn = document.getElementById('sidebarToggle');
+document.addEventListener("DOMContentLoaded", () => {
 
-    // --- Load murid ke dropdown ---
-    const muridList = JSON.parse(localStorage.getItem('muridList')) || [];
-    studentSelect.innerHTML = muridList.length
-        ? muridList.map(m => `<option value="${m.nama}">${m.nama}</option>`).join('')
-        : '<option value="">(Belum ada data murid)</option>';
+    requireLogin();
+    setupLogout();
+    setupSidebarToggle();
 
-    // --- Load data sanksi ---
-    let sanctions = JSON.parse(localStorage.getItem('sanctionsList')) || [];
+    const form = document.getElementById("sanctionForm");
+    const table = document.querySelector("#sanctionsTable tbody");
+    const selectStudent = document.getElementById("sanctionStudent");
 
-    const renderTable = () => {
-        sanctionsTable.innerHTML = sanctions.length
-            ? sanctions.map((s, i) => `
+    let sanctions = getData("sanctions");
+    let students = getData("students");
+
+    if (students.length > 0) {
+        selectStudent.innerHTML = students.map(s => `<option value="${s.name}">${s.name}</option>`).join("");
+        selectStudent.disabled = false;
+        form.querySelector("button[type='submit']").disabled = false;
+    } else {
+        selectStudent.innerHTML = '<option value="">(Belum ada data murid)</option>';
+        selectStudent.disabled = true;
+        form.querySelector("button[type='submit']").disabled = true;
+    }
+
+    function renderTable(data = sanctions) {
+        table.innerHTML = data.length > 0
+            ? data.map((s, i) => `
         <tr>
-            <td>${s.nama}</td>
-            <td>${s.jenis}</td>
-            <td>${s.tanggal}</td>
-            <td>${s.status}</td>
-            <td><button class="btn small danger" data-index="${i}">Hapus</button></td>
+          <td>${s.name}</td>
+          <td>${s.type}</td>
+          <td>${formatDate(s.date)}</td>
+          <td>${s.status}</td>
+          <td><button class="btn small danger" onclick="deleteSanction(${i})">Hapus</button></td>
         </tr>
-        `).join('')
+      `).join("")
             : '<tr><td colspan="5" class="muted">Belum ada data sanksi</td></tr>';
-    };
+    }
 
-    renderTable();
-
-    // --- Simpan data sanksi baru ---
-    sanctionForm.addEventListener('submit', e => {
+    form.addEventListener("submit", (e) => {
         e.preventDefault();
-        const nama = studentSelect.value;
-        const jenis = document.getElementById('sanctionType').value.trim();
-        const tanggal = document.getElementById('sanctionDate').value;
-        const status = document.getElementById('sanctionStatus').value;
 
-        if (!nama || !jenis || !tanggal) {
-            alert('Lengkapi semua data sanksi!');
-            return;
-        }
+        const s = {
+            name: selectStudent.value,
+            type: document.getElementById("sanctionType").value,
+            date: document.getElementById("sanctionDate").value,
+            status: document.getElementById("sanctionStatus").value
+        };
 
-        sanctions.push({ nama, jenis, tanggal, status });
-        localStorage.setItem('sanctionsList', JSON.stringify(sanctions));
-        sanctionForm.reset();
+        sanctions.push(s);
+        saveData("sanctions", sanctions);
+        form.reset();
         renderTable();
     });
 
-    // --- Hapus 1 sanksi ---
-    sanctionsTable.addEventListener('click', e => {
-        if (e.target.tagName === 'BUTTON') {
-            const index = e.target.dataset.index;
-            if (confirm('Hapus data sanksi ini?')) {
-                sanctions.splice(index, 1);
-                localStorage.setItem('sanctionsList', JSON.stringify(sanctions));
-                renderTable();
-            }
-        }
-    });
-
-    // --- Hapus semua sanksi ---
-    clearBtn.addEventListener('click', () => {
-        if (confirm('Hapus semua data sanksi?')) {
+    document.getElementById("clearSanctions").addEventListener("click", () => {
+        if (confirm("Hapus semua data pembinaan?")) {
             sanctions = [];
-            localStorage.setItem('sanctionsList', JSON.stringify(sanctions));
+            saveData("sanctions", sanctions);
             renderTable();
         }
     });
 
-    // --- Logout ---
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('loggedInUser');
-        window.location.href = 'index.html';
-    });
+    window.deleteSanction = (index) => {
+        sanctions.splice(index, 1);
+        saveData("sanctions", sanctions);
+        renderTable();
+    };
 
-    // --- Sidebar toggle (mobile) ---
-    toggleBtn.addEventListener('click', () => {
-        document.querySelector('.sidebar').classList.toggle('open');
-    });
+    renderTable();
 });
