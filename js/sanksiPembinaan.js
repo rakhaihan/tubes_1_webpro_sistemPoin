@@ -25,13 +25,13 @@ document.addEventListener("DOMContentLoaded", () => {
         table.innerHTML = data.length > 0
             ? data.map((s, i) => `
         <tr>
-          <td>${s.name}</td>
-          <td>${s.type}</td>
-          <td>${formatDate(s.date)}</td>
-          <td>${s.status}</td>
-          <td><button class="btn small danger" onclick="deleteSanction(${i})">Hapus</button></td>
+            <td>${s.name}</td>
+            <td>${s.type}</td>
+            <td>${formatDate(s.date)}</td>
+            <td>${s.status}</td>
+            <td><button class="btn small danger" onclick="deleteSanction(${i})">Hapus</button></td>
         </tr>
-      `).join("")
+        `).join("")
             : '<tr><td colspan="5" class="muted">Belum ada data sanksi</td></tr>';
     }
 
