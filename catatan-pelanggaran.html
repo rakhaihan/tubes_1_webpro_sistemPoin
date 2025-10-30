@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Catatan & Laporan - Sistem Poin</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
   <div class="app">
     <aside class="sidebar">
-      <div class="brand-compact"><div class="logo">SP</div><h2>SMK Merdeka</h2></div>
+      <div class="brand-compact">
+        <div class="logo">SP</div>
+        <h2>SMK Merdeka</h2>
+      </div>
       <nav class="menu">
         <a href="dashboard.html">Dashboard</a>
         <a href="data-murid.html">Data Murid</a>
@@ -22,7 +27,10 @@
     </aside>
 
     <main class="main">
-      <header class="header"><button id="sidebarToggle" class="menu-toggle" aria-label="Toggle menu">☰</button><h1>Catatan Pelanggaran</h1><p class="muted">Tambah catatan, lihat riwayat, dan cetak laporan</p></header>
+      <header class="header"><button id="sidebarToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+        <h1>Catatan Pelanggaran</h1>
+        <p class="muted">Tambah catatan, lihat riwayat, dan cetak laporan</p>
+      </header>
 
       <section class="card form-section">
         <h3>Tambah Catatan Pelanggaran</h3>
@@ -31,7 +39,22 @@
           <select id="violationStudent" class="input" required></select>
 
           <label class="label">Jenis Pelanggaran</label>
-          <input id="violationType" class="input" placeholder="Contoh: Terlambat / Membolos" required />
+          <select id="violationType" class="input" placeholder="Contoh: Terlambat / Membolos" required>
+          <option value="">-- Pilih Pelanggaran --</option>
+          <option value="2">Membuang Sampah Sembarangan</option>
+          <option value="5">Tidak Membawa Buku</option>
+          <option value="5">Tidak Memakai Seragam Lengkap</option>
+          <option value="10">Tidak Ikut Upacara</option>
+          <option value="10">Terlambat Masuk</option>
+          <option value="10">Keluar Lingkungan Sekolah</option>
+          <option value="15">Membolos Tanpa Alasan</option>
+          <option value="20">Merokok</option>
+          <option value="20">Membawa Senjata Tajam</option>
+          <option value="25">Berkelahi Dengan Siswa Lain</option>
+          <option value="25">Merusak Fasilitas Sekolah</option>
+          <option value="30">Mengonsumsi Narkotika</option>
+          <option value="30">Melakukan Tindakan Asusila</option>
+          </select>
 
           <label class="label">Tanggal</label>
           <input id="violationDate" type="date" class="input" required />
@@ -40,7 +63,7 @@
           <textarea id="violationNote" class="input" rows="2"></textarea>
 
           <label class="label">Poin (angka)</label>
-          <input id="violationPoints" type="number" min="1" class="input" value="1" />
+          <input id="violationPoints" type="text" class="input"  readonly/>
 
           <div class="row">
             <button class="btn primary" type="submit">Simpan</button>
@@ -59,7 +82,16 @@
         </div>
 
         <table id="violationsTable">
-          <thead><tr><th>Nama</th><th>Jenis</th><th>Tanggal</th><th>Poin</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Jenis</th>
+              <th>Tanggal</th>
+              <th>Poin</th>
+              <th>Keterangan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
           <tbody></tbody>
         </table>
       </section>
@@ -74,7 +106,7 @@
   <script src="js/catatan-pelanggaran.js"></script>
   <script>
     app.auth.requireAuth();
-    document.getElementById('logoutBtn3').onclick = () => { app.auth.logout(); location.href='index.html'; };
+    document.getElementById('logoutBtn3').onclick = () => { app.auth.logout(); location.href = 'index.html'; };
 
     const sidebar = document.querySelector('.sidebar');
     document.getElementById('sidebarToggle').addEventListener('click', () => sidebar.classList.toggle('show'));
@@ -86,6 +118,18 @@
       students.forEach(s => sel.innerHTML += `<option value="${s.id}">${s.name} — ${s.class}</option>`);
     };
     fillStudentOptions();
+
+    const valuePoints = document.getElementById('violationType').value;
+    document.getElementById('violationPoints').value = valuePoints;
+
+    const violationType = document.getElementById('violationType');
+    const violationPoints = document.getElementById('violationPoints');
+
+    violationType.addEventListener('change', function() {
+      const value = this.value;
+
+      violationPoints.value = value;
+      });
 
     document.getElementById('violationForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -104,18 +148,18 @@
       document.getElementById('violationForm').reset();
     });
 
-    function renderViolations(filter='') {
+    function renderViolations(filter = '') {
       const tbody = document.querySelector('#violationsTable tbody');
       const violations = app.data.getAllViolations().filter(v => {
         const q = filter.toLowerCase();
         const name = app.data.findStudentName(v.studentId).toLowerCase();
-        return name.includes(q) || v.type.toLowerCase().includes(q) || (v.note||'').toLowerCase().includes(q);
+        return name.includes(q) || v.type.toLowerCase().includes(q) || (v.note || '').toLowerCase().includes(q);
       });
       tbody.innerHTML = '';
       violations.slice().reverse().forEach(v => {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td>${app.data.findStudentName(v.studentId)}</td><td>${v.type}</td><td>${v.date}</td><td>${v.points}</td>
-          <td>${v.note||''}</td>
+          <td>${v.note || ''}</td>
           <td>
             <button class="btn ghost small" onclick="editViolation('${v.id}')">Edit</button>
             <button class="btn danger small" onclick="deleteViolation('${v.id}')">Hapus</button>
@@ -124,10 +168,10 @@
       });
 
       const counts = {};
-      app.data.getAllViolations().forEach(x => counts[x.type] = (counts[x.type]||0)+1);
+      app.data.getAllViolations().forEach(x => counts[x.type] = (counts[x.type] || 0) + 1);
       drawBarChart('chartCanvas2', Object.keys(counts), Object.values(counts));
     }
-    document.getElementById('searchViolation').addEventListener('input', (e)=> renderViolations(e.target.value));
+    document.getElementById('searchViolation').addEventListener('input', (e) => renderViolations(e.target.value));
 
     window.editViolation = (id) => {
       const v = app.data.getViolation(id);
@@ -158,4 +202,5 @@
     renderViolations();
   </script>
 </body>
+
 </html>
