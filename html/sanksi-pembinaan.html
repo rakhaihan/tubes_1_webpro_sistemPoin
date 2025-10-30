@@ -9,7 +9,10 @@
 <body>
   <div class="app">
     <aside class="sidebar">
-      <div class="brand-compact"><div class="logo">SP</div><h2>SMK Merdeka</h2></div>
+      <div class="brand-compact">
+        <div class="logo">SP</div>
+        <h2>SMK Merdeka</h2>
+      </div>
       <nav class="menu">
         <a href="dashboard.html">Dashboard</a>
         <a href="data-murid.html">Data Murid</a>
@@ -22,41 +25,63 @@
     </aside>
 
     <main class="main">
-      <header class="header"><button id="sidebarToggle" class="menu-toggle">☰</button><h1>Sanksi & Pembinaan</h1></header>
+      <header class="header">
+        <button id="sidebarToggle" class="menu-toggle">☰</button>
+        <h1>Sanksi & Pembinaan</h1>
+      </header>
 
       <section class="card">
-        <form id="sanctionForm">
-          <label class="label">Pilih Murid</label>
-          <select id="sanctionStudent" class="input"></select>
-
-          <label class="label">Jenis Sanksi</label>
-          <input id="sanctionType" class="input" />
-
-          <label class="label">Tanggal</label>
-          <input id="sanctionDate" type="date" class="input" />
-
-          <label class="label">Status Pembinaan</label>
-          <select id="sanctionStatus" class="input">
-            <option value="aktif">Aktif</option>
-            <option value="pembinaan">Pembinaan</option>
-            <option value="selesai">Selesai</option>
-          </select>
-
-          <div class="row">
-            <button class="btn primary" type="submit">Simpan</button>
-            <button type="button" id="clearSanctions" class="btn ghost">Bersihkan</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="card">
-        <h3>Daftar Pembinaan</h3>
+        <div class="row space-between">
+          <h3>Daftar Pembinaan</h3>
+          <button id="addSanctionBtn" class="btn primary">+ Tambah Sanksi</button>
+        </div>
         <table id="sanctionsTable">
-          <thead><tr><th>Nama</th><th>Sanksi</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Poin</th>
+              <th>Sanksi</th>
+              <th>Tanggal</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
           <tbody></tbody>
         </table>
       </section>
     </main>
+  </div>
+
+  <!-- Modal Popup -->
+  <div class="modalSP" id="sanctionModal">
+    <div class="modalSP-content">
+      <div class="modalSP-header">
+        <h3>Tambah Sanksi</h3>
+        <button class="close-btn" id="closeModal">&times;</button>
+      </div>
+
+      <form id="sanctionForm">
+        <label class="label">Pilih Murid</label>
+        <select id="sanctionStudent" class="input"></select>
+
+        <label class="label">Jenis Sanksi (otomatis)</label>
+        <input id="sanctionType" class="input" readonly />
+
+        <label class="label">Tanggal</label>
+        <input id="sanctionDate" type="date" class="input" />
+
+        <label class="label">Status Pembinaan</label>
+        <select id="sanctionStatus" class="input">
+          <option value="aktif">Aktif</option>
+          <option value="pembinaan">Pembinaan</option>
+          <option value="selesai">Selesai</option>
+        </select>
+
+        <div class="row" style="margin-top: 15px;">
+          <button class="btn primary" type="submit">Simpan</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="../js/core.js"></script>
