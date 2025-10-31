@@ -1,122 +1,192 @@
-const app = (function(){
-  const KEY = {
-    AUTH: 'sp_auth',
-    STUDENTS: 'sp_students_v1',
-    VIOLATIONS: 'sp_violations_v1',
-    SANCTIONS: 'sp_sanctions_v1'
-  };
-
-  function uuid(){ return 'id-'+Math.random().toString(36).slice(2,9); }
-  function nowDate(){ const d=new Date(); return d.toISOString().slice(0,10); }
-  function save(key,val){ localStorage.setItem(key, JSON.stringify(val)); }
-  function load(key){ try { return JSON.parse(localStorage.getItem(key)||'null'); } catch(e){ return null; } }
-
-  const data = {
-    getAllStudents(){ return load(KEY.STUDENTS) || []; },
-    addStudent(s){
-      const arr = this.getAllStudents();
-      const ent = { id: uuid(), name: s.name, class: s.class, nis: s.nis, status: s.status||'aktif' };
-      arr.push(ent); save(KEY.STUDENTS, arr); return ent;
-    },
-    getStudent(id){ return this.getAllStudents().find(x=>x.id===id); },
-    updateStudent(newS){
-      const arr = this.getAllStudents().map(s=> s.id===newS.id ? { ...s, ...newS } : s);
-      save(KEY.STUDENTS, arr);
-    },
-    deleteStudent(id){
-      const arr = this.getAllStudents().filter(s=>s.id!==id);
-      save(KEY.STUDENTS, arr);
-      const vs = this.getAllViolations().filter(v=>v.studentId!==id);
-      save(KEY.VIOLATIONS, vs);
-      const ss = this.getAllSanctions().filter(s=>s.studentId!==id);
-      save(KEY.SANCTIONS, ss);
-    },
-
-    getAllViolations(){ return load(KEY.VIOLATIONS) || []; },
-    addViolation(v){ const arr = this.getAllViolations(); arr.push(v); save(KEY.VIOLATIONS, arr); },
-    getViolation(id){ return this.getAllViolations().find(x=>x.id===id); },
-    deleteViolation(id){ const arr = this.getAllViolations().filter(x=>x.id!==id); save(KEY.VIOLATIONS, arr); },
-    clearViolations(){ save(KEY.VIOLATIONS, []); },
-
-    getAllSanctions(){ return load(KEY.SANCTIONS) || []; },
-    addSanction(s){ const arr = this.getAllSanctions(); arr.push(s); save(KEY.SANCTIONS, arr); },
-    getSanction(id){ return this.getAllSanctions().find(x=>x.id===id); },
-    updateSanction(s){ const arr = this.getAllSanctions().map(x=> x.id===s.id ? s : x); save(KEY.SANCTIONS, arr); },
-    deleteSanction(id){ const arr = this.getAllSanctions().filter(x=>x.id!==id); save(KEY.SANCTIONS, arr); },
-    clearSanctions(){ save(KEY.SANCTIONS, []); },
-
-    findStudentName(id){ const s = this.getAllStudents().find(x=>x.id===id); return s ? s.name : '(–)'; },
-    ensureDemo(){
-    }
-  };
-
-  const auth = {
-    login(u,p){
-      if (u==='admin' && p==='1234') { localStorage.setItem(KEY.AUTH, JSON.stringify({user:'admin',ts:Date.now()})); return true; }
-      return false;
-    },
-    logout(){ localStorage.removeItem(KEY.AUTH); },
-    isAuthenticated(){ return !!load(KEY.AUTH); },
-    requireAuth(){ if (!this.isAuthenticated()) { location.href='catatan-pelanggaran.html'; } }
-  };
-
-  const util = {
-    uuid,
-    exportCSV(arr, keys){
-      if (!arr || !arr.length) return '';
-      const k = keys || Object.keys(arr[0]);
-      const rows = [k.join(',')].concat(arr.map(obj=> k.map(h => {
-        let v = obj[h] === undefined || obj[h] === null ? '' : String(obj[h]);
-        v = v.replace(/"/g,'""');
-        return `"${v}"`;
-      }).join(',')));
-      return rows.join('\\n');
-    },
-    downloadFile(content, filename='export.txt', mime='text/plain'){
-      const blob = new Blob([content], {type:mime});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href=url; a.download=filename; document.body.appendChild(a); a.click();
-      a.remove(); URL.revokeObjectURL(url);
-    }
-  };
-
-  return { data, auth, util };
-})();
-
-function drawBarChart(canvasId, labels, values){
-  const c = document.getElementById(canvasId);
-  if (!c) return;
-  const ctx = c.getContext('2d');
-  ctx.clearRect(0,0,c.width,c.height);
-  if (!labels || !labels.length) {
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '16px Inter';
-    ctx.fillText('Tidak ada data', 20, 40);
-    return;
+// === CATATAN-PELANGGARAN.JS ===
+document.addEventListener("DOMContentLoaded", () => {
+  // ==== Utilitas LocalStorage ====
+  function saveData(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
   }
-  const padding = 40;
-  const chartW = c.width - padding*2;
-  const chartH = c.height - padding*2;
-  const max = Math.max(...values) || 1;
-  const barW = Math.max(24, chartW / labels.length - 18);
-  ctx.strokeStyle = '#e6eef7';
-  ctx.beginPath(); ctx.moveTo(padding, padding); ctx.lineTo(padding, padding+chartH); ctx.lineTo(padding+chartW, padding+chartH); ctx.stroke();
+  function getData(key) {
+    return JSON.parse(localStorage.getItem(key) || "[]");
+  }
 
-  labels.forEach((lab, i) => {
-    const val = values[i];
-    const x = padding + 12 + i * (barW + 18);
-    const h = (val / max) * (chartH - 20);
-    const y = padding + chartH - h;
-    const g = ctx.createLinearGradient(x, y, x, y+h);
-    g.addColorStop(0, '#1473e6'); g.addColorStop(1, '#0b66c3');
-    ctx.fillStyle = g;
-    ctx.fillRect(x, y, barW, h);
-    ctx.fillStyle = '#334155';
-    ctx.font = '12px Inter';
-    ctx.fillText(lab, x, padding+chartH + 16);
-    ctx.fillStyle = '#0f1724';
-    ctx.font = '13px Inter';
-    ctx.fillText(val, x, y - 8);
+  const students = getData("students");
+  let violations = getData("violations");
+
+  // ==== Elemen ====
+  const selStudent = document.getElementById("violationStudent");
+  const violationType = document.getElementById("violationType");
+  const violationPoints = document.getElementById("violationPoints");
+  const violationForm = document.getElementById("violationForm");
+  const searchInput = document.getElementById("searchViolation");
+  const clearBtn = document.getElementById("clearViolations");
+  const printBtn = document.getElementById("printReport");
+  const tableBody = document.querySelector("#violationsTable tbody");
+
+  // ==== Isi Dropdown Murid ====
+  function fillStudentOptions() {
+    selStudent.innerHTML = '<option value="">-- Pilih Murid --</option>';
+    students.forEach((s, i) => {
+      selStudent.innerHTML += `<option value="${i}">${s.name} — ${s.class}</option>`;
+    });
+  }
+
+  // ==== Render Tabel Pelanggaran ====
+  function renderTable(filter = "") {
+    const q = filter.toLowerCase();
+    const filtered = violations.filter(v => {
+      const name = students[v.studentIndex]?.name?.toLowerCase() || "";
+      return (
+        name.includes(q) ||
+        v.type.toLowerCase().includes(q) ||
+        (v.note || "").toLowerCase().includes(q)
+      );
+    });
+
+    tableBody.innerHTML = "";
+
+    if (filtered.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="6" class="muted center">Belum ada catatan pelanggaran</td></tr>`;
+      drawBarChart("chartCanvas2", [], []);
+      return;
+    }
+
+    filtered.slice().reverse().forEach((v, i) => {
+      const s = students[v.studentIndex];
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${s ? s.name : "(Tidak ditemukan)"}</td>
+        <td>${v.type}</td>
+        <td>${v.date}</td>
+        <td>${v.points}</td>
+        <td>${v.note || ""}</td>
+        <td>
+          <button class="btn small" onclick="editViolation(${violations.indexOf(v)})">Edit</button>
+          <button class="btn small danger" onclick="deleteViolation(${violations.indexOf(v)})">Hapus</button>
+        </td>
+      `;
+      tableBody.appendChild(tr);
+    });
+
+    // Update chart
+    const counts = {};
+    violations.forEach(v => counts[v.type] = (counts[v.type] || 0) + 1);
+    drawBarChart("chartCanvas2", Object.keys(counts), Object.values(counts));
+  }
+
+  // ==== Tambah / Edit Pelanggaran ====
+  violationForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const studentIndex = selStudent.value;
+    if (studentIndex === "") return alert("Pilih murid terlebih dahulu.");
+
+    const newData = {
+      studentIndex: Number(studentIndex),
+      type: violationType.options[violationType.selectedIndex].text,
+      date: document.getElementById("violationDate").value,
+      note: document.getElementById("violationNote").value.trim(),
+      points: Number(violationPoints.value) || 0
+    };
+
+    violations.push(newData);
+    saveData("violations", violations);
+    violationForm.reset();
+    violationPoints.value = "";
+    renderTable();
   });
-}
+
+  // ==== Hapus satu pelanggaran ====
+  window.deleteViolation = (index) => {
+    if (confirm("Hapus catatan ini?")) {
+      violations.splice(index, 1);
+      saveData("violations", violations);
+      renderTable();
+    }
+  };
+
+  // ==== Edit pelanggaran ====
+  window.editViolation = (index) => {
+    const v = violations[index];
+    const s = students[v.studentIndex];
+    if (!s) return alert("Data murid tidak ditemukan.");
+
+    if (confirm("Muat data ke form untuk diedit? Setelah disimpan akan menambah catatan baru.")) {
+      selStudent.value = v.studentIndex;
+      violationType.value = v.points;
+      document.getElementById("violationDate").value = v.date;
+      document.getElementById("violationNote").value = v.note;
+      violationPoints.value = v.points;
+
+      violations.splice(index, 1);
+      saveData("violations", violations);
+      renderTable();
+    }
+  };
+
+  // ==== Bersihkan Semua ====
+  clearBtn.addEventListener("click", () => {
+    if (confirm("Hapus semua catatan pelanggaran?")) {
+      violations = [];
+      saveData("violations", violations);
+      renderTable();
+    }
+  });
+
+  // ==== Cetak ====
+  printBtn.addEventListener("click", () => window.print());
+
+  // ==== Filter Cari ====
+  searchInput.addEventListener("input", (e) => renderTable(e.target.value));
+
+  // ==== Otomatis isi poin ====
+  violationType.addEventListener("change", function () {
+    violationPoints.value = this.value;
+  });
+
+  // ==== Chart (fungsi sederhana) ====
+  function drawBarChart(canvasId, labels, values) {
+    const c = document.getElementById(canvasId);
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, c.width, c.height);
+
+    if (labels.length === 0) {
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "16px Inter";
+      ctx.fillText("Tidak ada data", 20, 40);
+      return;
+    }
+
+    const padding = 40;
+    const chartW = c.width - padding * 2;
+    const chartH = c.height - padding * 2;
+    const max = Math.max(...values, 1);
+    const barW = Math.max(24, chartW / labels.length - 18);
+
+    ctx.strokeStyle = "#e6eef7";
+    ctx.beginPath();
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, padding + chartH);
+    ctx.lineTo(padding + chartW, padding + chartH);
+    ctx.stroke();
+
+    labels.forEach((lab, i) => {
+      const val = values[i];
+      const x = padding + 12 + i * (barW + 18);
+      const h = (val / max) * (chartH - 20);
+      const y = padding + chartH - h;
+      const g = ctx.createLinearGradient(x, y, x, y + h);
+      g.addColorStop(0, "#1473e6");
+      g.addColorStop(1, "#0b66c3");
+      ctx.fillStyle = g;
+      ctx.fillRect(x, y, barW, h);
+      ctx.fillStyle = "#334155";
+      ctx.font = "12px Inter";
+      ctx.fillText(lab, x, padding + chartH + 16);
+      ctx.fillStyle = "#0f1724";
+      ctx.font = "13px Inter";
+      ctx.fillText(val, x, y - 8);
+    });
+  }
+
+  // ==== Inisialisasi ====
+  fillStudentOptions();
+  renderTable();
+});
