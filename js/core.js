@@ -1,18 +1,35 @@
+// --- core.js --- //
+
+// 🔹 Ambil data dari localStorage
 function getData(key) {
-  return JSON.parse(localStorage.getItem(key)) || [];
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : [];
+  } catch (err) {
+    console.error(`Gagal membaca data ${key}:`, err);
+    return [];
+  }
 }
 
+// 🔹 Simpan data ke localStorage
 function saveData(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (err) {
+    console.error(`Gagal menyimpan data ${key}:`, err);
+  }
 }
 
-// Cek login
+// 🔹 Cek login
 function requireLogin() {
   const user = localStorage.getItem("loggedInUser");
-  if (!user) window.location.href = "index.html";
+  if (!user) {
+    alert("Sesi login berakhir, silakan login ulang.");
+    window.location.href = "index.html";
+  }
 }
 
-// Logout
+// 🔹 Logout untuk semua tombol
 function setupLogout() {
   document.querySelectorAll("#logoutBtn, #logoutBtn2, #logoutBtn3, #logoutBtn4").forEach(btn => {
     if (btn) {
@@ -24,7 +41,7 @@ function setupLogout() {
   });
 }
 
-// Sidebar toggle (responsive)
+// 🔹 Sidebar toggle (responsive)
 function setupSidebarToggle() {
   const sidebar = document.querySelector(".sidebar");
   const toggle = document.getElementById("sidebarToggle");
@@ -33,9 +50,19 @@ function setupSidebarToggle() {
   }
 }
 
-// Utilitas format tanggal
+// 🔹 Format tanggal ke format Indonesia
 function formatDate(dateStr) {
   if (!dateStr) return "-";
   const d = new Date(dateStr);
   return `${d.getDate().toString().padStart(2, "0")}-${(d.getMonth()+1).toString().padStart(2,"0")}-${d.getFullYear()}`;
+}
+
+// 🔹 Pastikan struktur awal data ada (tanpa dummy)
+function ensureInitialData() {
+  const keys = ["students", "sanctions", "studentSanctionRecords"];
+  keys.forEach(key => {
+    if (!localStorage.getItem(key)) {
+      saveData(key, []);
+    }
+  });
 }
