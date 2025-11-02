@@ -1,4 +1,4 @@
-// --- sanksi-pembinaan.js (fix final: migrasi, debug, evaluasi sanksi saat buka modal & render) --- //
+
 document.addEventListener("DOMContentLoaded", () => {
     requireLogin();
     setupLogout();
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return "Tidak Ada Sanksi";
     }
 
-    // --------------- Populate dropdown siswa ---------------
+    
     function populateStudentDropdown() {
         students = getData("students") || [];
         if (!selectStudent) return;
@@ -90,10 +90,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Pastikan migrasi sudah selesai sebelum populate
+   
     populateStudentDropdown();
 
-    // --------------- Evaluasi sanksi saat pilih murid ---------------
     function evaluateSanctionForSelected() {
         const idx = Number(selectStudent.value);
         if (Number.isNaN(idx)) {
@@ -108,17 +107,16 @@ document.addEventListener("DOMContentLoaded", () => {
         selectStudent.addEventListener("change", evaluateSanctionForSelected);
     }
 
-    // --------------- Modal behavior: set sanction ketika dibuka ---------------
     if (openBtn && modal) {
         openBtn.addEventListener("click", () => {
-            // refresh data & dropdown
+            
             students = getData("students") || [];
             violations = getData("violations") || [];
             sanctions = getData("sanctions") || [];
             populateStudentDropdown();
             form.reset();
             sanctionType.value = "";
-            // jika ada first student, pilih otomatis dan evaluasi
+            
             if (selectStudent && selectStudent.options.length > 0 && !selectStudent.disabled) {
                 selectStudent.selectedIndex = 0;
                 evaluateSanctionForSelected();
@@ -130,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (closeBtn) closeBtn.addEventListener("click", () => modal.classList.remove("show"));
     window.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("show"); });
 
-    // --------------- Render tabel (sesuai urutan Nama | Poin | Sanksi | Tanggal | Status | Aksi) ---------------
+    
     function renderTable(data = getData("sanctions") || []) {
         if (!table) return;
         sanctions = data;
@@ -162,7 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }).join("");
     }
 
-    // --------------- Submit add sanction ---------------
     if (form) {
         form.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -186,7 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --------------- Delete sanction ---------------
     window.deleteSanction = (index) => {
         sanctions = getData("sanctions") || [];
         if (!sanctions[index]) return;
@@ -198,7 +194,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // --------------- Popup small ---------------
     function showPopupMessage(msg) {
         const popup = document.createElement("div");
         popup.className = "popup-msg";
@@ -209,17 +204,14 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => popup.remove(), 2500);
     }
 
-    // --------------- Quick debug check on load ---------------
     (function quickCheck() {
         students = getData("students") || [];
         violations = getData("violations") || [];
         sanctions = getData("sanctions") || [];
         console.info("QuickCheck:", { students: students.length, violations: violations.length, sanctions: sanctions.length });
-        // tampilkan contoh record pertama untuk verifikasi struktur
         if (violations[0]) console.debug("violations[0]:", violations[0]);
         if (students[0]) console.debug("students[0]:", students[0]);
     })();
 
-    // initial render
     renderTable(getData("sanctions") || []);
 });
