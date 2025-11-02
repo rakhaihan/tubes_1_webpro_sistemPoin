@@ -1,4 +1,4 @@
-
+// sanksipembinaan.js
 document.addEventListener("DOMContentLoaded", () => {
     requireLogin();
     setupLogout();
@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let violations = getData("violations");
     let sanctions = getData("sanctions");
 
+    // Migrasi jika perlu
     (function migrateViolationsIfNeeded() {
         try {
             const raw = localStorage.getItem("violations");
@@ -56,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })();
 
+    // Helper: hitung poin  
     function totalPoinSiswaByIndex(studentIndex) {
         if (typeof studentIndex !== "number" || Number.isNaN(studentIndex)) return 0;
         violations = getData("violations") || [];
@@ -73,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return "Tidak Ada Sanksi";
     }
 
-    
+    // dropdown siswa  
     function populateStudentDropdown() {
         students = getData("students") || [];
         if (!selectStudent) return;
@@ -88,9 +90,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-   
     populateStudentDropdown();
 
+    // Evaluasi sanksi saat pilih murid  
     function evaluateSanctionForSelected() {
         const idx = Number(selectStudent.value);
         if (Number.isNaN(idx)) {
@@ -105,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selectStudent.addEventListener("change", evaluateSanctionForSelected);
     }
 
+    // Modal behavior: set sanction ketika dibuka  
     if (openBtn && modal) {
         openBtn.addEventListener("click", () => {
             
@@ -126,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (closeBtn) closeBtn.addEventListener("click", () => modal.classList.remove("show"));
     window.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("show"); });
 
-    
+    //   Render tabel (sesuai urutan Nama | Poin | Sanksi | Tanggal | Status | Aksi)  
     function renderTable(data = getData("sanctions") || []) {
         if (!table) return;
         sanctions = data;
@@ -158,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }).join("");
     }
 
+    //   Submit add sanction  
     if (form) {
         form.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -181,6 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    //   Delete sanction  
     window.deleteSanction = (index) => {
         sanctions = getData("sanctions") || [];
         if (!sanctions[index]) return;
@@ -192,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    //   Popup small  
     function showPopupMessage(msg) {
         const popup = document.createElement("div");
         popup.className = "popup-msg";
@@ -202,6 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => popup.remove(), 2500);
     }
 
+    // Quick debug check on load  
     (function quickCheck() {
         students = getData("students") || [];
         violations = getData("violations") || [];
