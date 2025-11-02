@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })();
 
-    // --------------- Helper: hitung poin ---------------
     function totalPoinSiswaByIndex(studentIndex) {
         if (typeof studentIndex !== "number" || Number.isNaN(studentIndex)) return 0;
         violations = getData("violations") || [];
