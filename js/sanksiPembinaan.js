@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let violations = getData("violations");
     let sanctions = getData("sanctions");
 
-    // ----------------- Migrasi jika perlu -----------------
     (function migrateViolationsIfNeeded() {
         try {
             const raw = localStorage.getItem("violations");
