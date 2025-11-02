@@ -90,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Pastikan migrasi sudah selesai sebelum populate
     populateStudentDropdown();
 
     // Evaluasi sanksi saat pilih murid  
@@ -111,14 +110,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Modal behavior: set sanction ketika dibuka  
     if (openBtn && modal) {
         openBtn.addEventListener("click", () => {
-            // refresh data & dropdown
+            
             students = getData("students") || [];
             violations = getData("violations") || [];
             sanctions = getData("sanctions") || [];
             populateStudentDropdown();
             form.reset();
             sanctionType.value = "";
-            // jika ada first student, pilih otomatis dan evaluasi
+            
             if (selectStudent && selectStudent.options.length > 0 && !selectStudent.disabled) {
                 selectStudent.selectedIndex = 0;
                 evaluateSanctionForSelected();
@@ -151,14 +150,14 @@ document.addEventListener("DOMContentLoaded", () => {
             points = (points == null) ? "—" : points;
             return `
         <tr>
-          <td>${displayName}</td>
-          <td>${points}</td>
-          <td>${rec.type}</td>
-          <td>${formatDate(rec.date)}</td>
-          <td>${rec.status}</td>
-          <td><button class="btn small danger" onclick="deleteSanction(${i})">Hapus</button></td>
+            <td>${displayName}</td>
+            <td>${points}</td>
+            <td>${rec.type}</td>
+            <td>${formatDate(rec.date)}</td>
+            <td>${rec.status}</td>
+            <td><button class="btn small danger" onclick="deleteSanction(${i})">Hapus</button></td>
         </tr>
-      `;
+        `;
         }).join("");
     }
 
@@ -209,17 +208,15 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => popup.remove(), 2500);
     }
 
-    //   Quick debug check on load  
+    // Quick debug check on load  
     (function quickCheck() {
         students = getData("students") || [];
         violations = getData("violations") || [];
         sanctions = getData("sanctions") || [];
         console.info("QuickCheck:", { students: students.length, violations: violations.length, sanctions: sanctions.length });
-        // tampilkan contoh record pertama untuk verifikasi struktur
         if (violations[0]) console.debug("violations[0]:", violations[0]);
         if (students[0]) console.debug("students[0]:", students[0]);
     })();
 
-    // initial render
     renderTable(getData("sanctions") || []);
 });
