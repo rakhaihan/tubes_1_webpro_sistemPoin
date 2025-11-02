@@ -1,4 +1,4 @@
-// --- sanksi-pembinaan.js (fix final: migrasi, debug, evaluasi sanksi saat buka modal & render) --- //
+// sanksipembinaan.js
 document.addEventListener("DOMContentLoaded", () => {
     requireLogin();
     setupLogout();
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let violations = getData("violations");
     let sanctions = getData("sanctions");
 
-    // ----------------- Migrasi jika perlu -----------------
+    // Migrasi jika perlu
     (function migrateViolationsIfNeeded() {
         try {
             const raw = localStorage.getItem("violations");
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })();
 
-    // --------------- Helper: hitung poin ---------------
+    // Helper: hitung poin  
     function totalPoinSiswaByIndex(studentIndex) {
         if (typeof studentIndex !== "number" || Number.isNaN(studentIndex)) return 0;
         violations = getData("violations") || [];
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return "Tidak Ada Sanksi";
     }
 
-    // --------------- Populate dropdown siswa ---------------
+    // dropdown siswa  
     function populateStudentDropdown() {
         students = getData("students") || [];
         if (!selectStudent) return;
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Pastikan migrasi sudah selesai sebelum populate
     populateStudentDropdown();
 
-    // --------------- Evaluasi sanksi saat pilih murid ---------------
+    // Evaluasi sanksi saat pilih murid  
     function evaluateSanctionForSelected() {
         const idx = Number(selectStudent.value);
         if (Number.isNaN(idx)) {
@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selectStudent.addEventListener("change", evaluateSanctionForSelected);
     }
 
-    // --------------- Modal behavior: set sanction ketika dibuka ---------------
+    // Modal behavior: set sanction ketika dibuka  
     if (openBtn && modal) {
         openBtn.addEventListener("click", () => {
             // refresh data & dropdown
@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (closeBtn) closeBtn.addEventListener("click", () => modal.classList.remove("show"));
     window.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("show"); });
 
-    // --------------- Render tabel (sesuai urutan Nama | Poin | Sanksi | Tanggal | Status | Aksi) ---------------
+    //   Render tabel (sesuai urutan Nama | Poin | Sanksi | Tanggal | Status | Aksi)  
     function renderTable(data = getData("sanctions") || []) {
         if (!table) return;
         sanctions = data;
@@ -151,18 +151,18 @@ document.addEventListener("DOMContentLoaded", () => {
             points = (points == null) ? "—" : points;
             return `
         <tr>
-            <td>${displayName}</td>
-            <td>${points}</td>
-            <td>${rec.type}</td>
-            <td>${formatDate(rec.date)}</td>
-            <td>${rec.status}</td>
-            <td><button class="btn small danger" onclick="deleteSanction(${i})">Hapus</button></td>
+          <td>${displayName}</td>
+          <td>${points}</td>
+          <td>${rec.type}</td>
+          <td>${formatDate(rec.date)}</td>
+          <td>${rec.status}</td>
+          <td><button class="btn small danger" onclick="deleteSanction(${i})">Hapus</button></td>
         </tr>
-        `;
+      `;
         }).join("");
     }
 
-    // --------------- Submit add sanction ---------------
+    //   Submit add sanction  
     if (form) {
         form.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --------------- Delete sanction ---------------
+    //   Delete sanction  
     window.deleteSanction = (index) => {
         sanctions = getData("sanctions") || [];
         if (!sanctions[index]) return;
@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // --------------- Popup small ---------------
+    //   Popup small  
     function showPopupMessage(msg) {
         const popup = document.createElement("div");
         popup.className = "popup-msg";
@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => popup.remove(), 2500);
     }
 
-    // --------------- Quick debug check on load ---------------
+    //   Quick debug check on load  
     (function quickCheck() {
         students = getData("students") || [];
         violations = getData("violations") || [];
