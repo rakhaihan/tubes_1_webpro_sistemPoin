@@ -25,12 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Tabel pelanggaran terakhir
   const tbody = document.querySelector("#recentTable tbody");
-  tbody.innerHTML = violations.slice(-5).reverse().map(v => `
+  tbody.innerHTML = violations.slice(-5).reverse().map(v => {
+  const s = students[v.studentIndex]; // ambil nama berdasarkan indeks
+  const name = s ? s.name : "(Tidak ditemukan)";
+  return `
     <tr>
-      <td>${v.name}</td>
+      <td>${name}</td>
       <td>${v.type}</td>
       <td>${formatDate(v.date)}</td>
-    </tr>`).join("");
+    </tr>`;
+}).join("");
+
 
   // === Chart Tren Pelanggaran ===
   const canvas = document.getElementById("chartCanvas");
